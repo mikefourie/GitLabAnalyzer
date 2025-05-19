@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "GitLabAnalyzer": {
+      "commandName": "Project",
+      "commandLineArgs": "-t <TOKEN> -u https://gitlab.roboticresearch.com"
+    }
+  }
+}

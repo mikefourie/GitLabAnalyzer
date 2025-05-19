@@ -1,0 +1,39 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.11.35222.181
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GitlabAnalyzer", "GitlabAnalyzer\GitlabAnalyzer.csproj", "{712F7BE3-2CB4-4A1A-9BD0-C99BCBDD4DD4}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Helper.Lib", "Helper.Lib\Helper.Lib.csproj", "{C0320380-4CC1-4C1E-8C99-FB00BF1981E8}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Libs", "Libs", "{3A148E08-5A1A-4327-B488-32947E93E3BF}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GitLab.Lib", "GitLab.Lib\GitLab.Lib.csproj", "{55911B6A-955A-4C05-A9A8-928B7A4FEB91}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{712F7BE3-2CB4-4A1A-9BD0-C99BCBDD4DD4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{712F7BE3-2CB4-4A1A-9BD0-C99BCBDD4DD4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{712F7BE3-2CB4-4A1A-9BD0-C99BCBDD4DD4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{712F7BE3-2CB4-4A1A-9BD0-C99BCBDD4DD4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C0320380-4CC1-4C1E-8C99-FB00BF1981E8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C0320380-4CC1-4C1E-8C99-FB00BF1981E8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C0320380-4CC1-4C1E-8C99-FB00BF1981E8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C0320380-4CC1-4C1E-8C99-FB00BF1981E8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{55911B6A-955A-4C05-A9A8-928B7A4FEB91}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{55911B6A-955A-4C05-A9A8-928B7A4FEB91}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{55911B6A-955A-4C05-A9A8-928B7A4FEB91}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{55911B6A-955A-4C05-A9A8-928B7A4FEB91}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{C0320380-4CC1-4C1E-8C99-FB00BF1981E8} = {3A148E08-5A1A-4327-B488-32947E93E3BF}
+	EndGlobalSection
+EndGlobal
