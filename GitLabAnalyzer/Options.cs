@@ -16,6 +16,9 @@ public class Options
     [Option('d', "fromDate", Required = false, HelpText = "Set the minimum date to retrieve data for commits and pushes")]
     public string FromDate { get; set; }
 
+    [Option('a', "fromRepoActiveDate", Required = false, HelpText = "Set the minimum active Date for a Repository to be included", Default = "1/1/2025")]
+    public string FromRepoActiveDate { get; set; }
+
     [Option('p', "pushcount", Required = false, HelpText = "Set the maximum number of commits to retrieve", Default = 100000)]
     public int PushCount { get; set; }
 

@@ -43,50 +43,40 @@ public class Program
         }
 
         ConsoleHelper.ConsoleWrite(programOptions.Verbose, $"Analyzing {programOptions.GitLabtUrl}, retrieving Repositories");
+
         List<Repository> repos = await GetAllRepositoriesAsync(httpClientFactory, programOptions.GitLabtUrl, programOptions.Token);
-
-        //List<Repository> repos = new ();
-        //using (StreamReader reader = new StreamReader(Path.Combine($"{currentDirectory}", $"repositories.csv")))
-        //{
-        //    string line;
-        //    while ((line = reader.ReadLine()) != null)
-        //    {
-        //        Repository r = new ()
-        //        {
-        //            name = line,
-        //        };
-
-        //        repos.Add(r);
-        //    }
-        //}
+        if (!string.IsNullOrEmpty(programOptions.FromRepoActiveDate))
+        {
+            DateTime filterDate = DateTime.Parse(programOptions.FromRepoActiveDate);
+            repos = repos.Where(r => r.last_activity_at >= filterDate).ToList();
+        }
 
         sb.Clear();
         sb.AppendLine("id,name,name_with_namespace,path,path_with_namespace,created_at,updated_at,default_branch,ssh_url_to_repo,http_url_to_repo,web_url,last_activity_at,empty_repo,archived,visibility,storage_size,repository_size,wiki_size,job_artifacts_size,pipeline_artifacts_size,packages_size,snippets_size,uploads_size,container_registry_size,commit_count");
 
+        int repoAddedCount = 0;
         foreach (Repository repo in repos)
         {
-            sb.Append($"{repo.id},{repo.name},{repo.name_with_namespace},{repo.path},{repo.path_with_namespace},{repo.created_at},{repo.updated_at},{repo.default_branch},{repo.ssh_url_to_repo},{repo.http_url_to_repo},{repo.web_url},{repo.last_activity_at},{repo.empty_repo},{repo.archived},{repo.visibility},{repo.statistics.storage_size},{repo.statistics.repository_size},{repo.statistics.wiki_size},{repo.statistics.job_artifacts_size},{repo.statistics.pipeline_artifacts_size},{repo.statistics.packages_size},{repo.statistics.snippets_size},{repo.statistics.uploads_size},{repo.statistics.container_registry_size},{repo.statistics.commit_count}");
-            sb.AppendLine();
+            if (repo.statistics != null)
+            {
+                sb.Append($"{repo.id},{repo.name},{repo.name_with_namespace},{repo.path},{repo.path_with_namespace},{repo.created_at},{repo.updated_at},{repo.default_branch},{repo.ssh_url_to_repo},{repo.http_url_to_repo},{repo.web_url},{repo.last_activity_at},{repo.empty_repo},{repo.archived},{repo.visibility},{repo.statistics.storage_size},{repo.statistics.repository_size},{repo.statistics.wiki_size},{repo.statistics.job_artifacts_size},{repo.statistics.pipeline_artifacts_size},{repo.statistics.packages_size},{repo.statistics.snippets_size},{repo.statistics.uploads_size},{repo.statistics.container_registry_size},{repo.statistics.commit_count}");
+                sb.AppendLine();
+                repoAddedCount++;
+            }
         }
 
         programOptions.OutputFile = Path.Combine($"{currentDirectory}", $"repositories.csv");
-        ConsoleHelper.ConsoleWrite(programOptions.Verbose, $"Writing {repos.Count} Repositories to {programOptions.OutputFile}", ConsoleColor.Green);
+        ConsoleHelper.ConsoleWrite(programOptions.Verbose, $"Writing {repoAddedCount} of {repos.Count} Repositories to {programOptions.OutputFile}", ConsoleColor.Green);
         File.WriteAllText(programOptions.OutputFile, sb.ToString());
         sb.Clear();
 
-        // work on the commits
+        // Get all the commits
         sb.AppendLine("id,reponame,name_with_namespace, path, path_with_namespace, short_id,created_at,title,message,author_name,author_email,authored_date,committer_name,committer_email,commited_date,web.url,stats_additions,stats_deletions,stats_total");
-
         int i = 1;
 
-        int[] numbers = { 169, 1637, 294 };
-
-
-        // Get all the commits
         foreach (Repository repo in repos.Where(pp => pp.statistics.commit_count < 75000))
         {
-            // i > 1050 && 
-            if (numbers.Contains(repo.id) && repo.statistics.commit_count > 0)
+            if (repo.statistics.commit_count > 0)
             {
                 ConsoleHelper.ConsoleWrite(programOptions.Verbose, $"Getting repository {i} of {repos.Count}", ConsoleColor.Green);
 
@@ -141,20 +131,27 @@ public class Program
                 client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
                 client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
 
-                HttpResponseMessage response = await client.GetAsync(url);
-                response.EnsureSuccessStatusCode();
-
-                string responseBody = await response.Content.ReadAsStringAsync();
-
-                Commit[] commits = JsonSerializer.Deserialize<Commit[]>(responseBody, options);
-
-                if (commits != null && commits.Length > 0)
+                try
                 {
-                    allCommits.AddRange(commits);
-                    page++;
+                    HttpResponseMessage response = await client.GetAsync(url);
+                    response.EnsureSuccessStatusCode();
+                    string responseBody = await response.Content.ReadAsStringAsync();
+
+                    Commit[] commits = JsonSerializer.Deserialize<Commit[]>(responseBody, options);
+
+                    if (commits != null && commits.Length > 0)
+                    {
+                        allCommits.AddRange(commits);
+                        page++;
+                    }
+                    else
+                    {
+                        morePages = false;
+                    }
                 }
-                else
+                catch (Exception ex)
                 {
+                    ConsoleHelper.ConsoleWrite(programOptions.Verbose, $"Unexpected error: {ex.Message}", ConsoleColor.Red);
                     morePages = false;
                 }
             }
@@ -167,7 +164,7 @@ public class Program
     {
         List<Repository> allRepositories = new ();
         int page = 1;
-        int perPage = 100; // Maximum allowed by GitLab API
+        int perPage = 100; // Maximum allowed by GitLab API because... GitLab!
         bool morePages = true;
 
         JsonSerializerOptions options = new ()
@@ -177,7 +174,7 @@ public class Program
 
         while (morePages)
         {
-            ConsoleHelper.ConsoleWrite(programOptions.Verbose, $"Getting repositories, Page: {page}", ConsoleColor.Green);
+            ConsoleHelper.ConsoleWrite(programOptions.Verbose, $"GetAllRepositoriesAsync > Getting repositories, Page: {page}", ConsoleColor.Green);
 
             string url = $"{baseUrl}/api/v4/projects?order_by=name&statistics=true&sort=asc&per_page={perPage}&page={page}";
             using (HttpClient client = httpClientFactory.CreateClient())
